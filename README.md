@@ -9,7 +9,7 @@ Jeff Tellew<sup>1</sup> and Tsung-Ting Kuo<sup>2</sup> †
 
 `2` UCSD Health Department of Biomedical Informatics, University of California San Diego, La Jolla, CA, USA
 
-`†` 9500 Gilman Dr, San Diego, CA, USA; tskuo@health.ucsd.edu; +1 (858) 822-4931.
+`†` Corresponding Author
 
 # Introduction
 
