@@ -1,0 +1,166 @@
+/*!
+ * DBMI Certificate Database
+ * Last Updated: 8/9/2019
+ * Written by J. Tellew for UCSD DBMI
+ */
+
+@import "bootstrap.css";
+
+/*
+==========================================================================
+ *** SITE STYLES ***
+==========================================================================
+*/
+
+:root {
+    --main-color: var(--blue);
+    --accent-color: #333333;
+}
+
+body {
+    padding-top: 3em; /*Keeps navbar from clipping stuff*/
+    padding-bottom: 2em;
+    font-family: 'Raleway', Tahoma, Arial, sans-serif;
+    text-decoration: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.container {
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.svg-white {
+    fill: white;
+}
+
+.img-btn {
+    border-radius: 4em;
+}
+
+.img-btn img {
+    padding-right: 0.5em;
+}
+
+.img-btn .icon-square {
+    padding-left: 1em;
+}
+
+.img-btn .icon-rounded {
+    padding-left: 0.5em;
+}
+
+/*
+==========================================================================
+ *** NAVBAR STYLES ***
+==========================================================================
+*/
+
+.navbar-brand span{
+    color: white;
+}
+
+.navbar-brand strong {
+    color: var(--main-color);
+}
+
+/*
+==========================================================================
+ *** FOOTER STYLES ***
+==========================================================================
+*/
+
+/*
+==========================================================================
+ *** JUMBOTRON STYLES ***
+==========================================================================
+*/
+
+.jumbotron h1 {
+    font-size: 5em;
+}
+
+.jumbotron p {
+    font-size: 1.5em;
+}
+
+.video-background {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.video-background h1 {
+    color: black;
+}
+
+.video-background p {
+    color: black;
+}
+
+.jumbotron-video{
+    position: absolute;
+    height: auto;
+    width: auto;
+    min-height: 100%;
+    min-width: 100%;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate3d(-50%, -50%, 0);
+    transform: translate3d(-50%, -50%, 0);
+    z-index: -1;
+}
+
+/*
+==========================================================================
+ *** LOGIN STYLES ***
+==========================================================================
+*/
+
+/*
+==========================================================================
+ *** FORM STYLES ***
+==========================================================================
+*/
+
+/*
+==========================================================================
+ *** CONFIRMATION DIALOGUE STYLES ***
+==========================================================================
+*/
+
+.confirm-field {
+    margin-bottom: 0.5em;
+}
+
+.confirm-field-name {
+    font-weight: bold;
+}
+
+/*
+==========================================================================
+ *** SEARCH RESULT STYLES ***
+==========================================================================
+*/
+
+/*
+==========================================================================
+ *** LOADING SPINNER ***
+==========================================================================
+*/
+
+.spinner-border-md {
+    height: 1.2em;
+    width: 1.2em;
+}

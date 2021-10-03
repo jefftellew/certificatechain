@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC|Raleway:100,200,400,600,700" rel="stylesheet">
+
+    <title>Search Certificates</title>
+
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" href="../static/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="/home">
+            <span>UCSD<strong>DBMI</strong></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/submit">Submit</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/search">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="jumbotron video-background">
+        <video class="jumbotron-video" preload muted autoplay loop>
+            <source th:src="@{/res/OKKKK.mp4}" src="../static/res/OKKKK.mp4" type="video/mp4">
+        </video>
+        <div class="container">
+            <h1 class="bold">SEARCH</h1>
+            <p>Search the existing certificates in the database</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-warning">
+            <h4>The date field is currently not supported by some versions of Safari and Internet Explorer.</h4>
+            <span>Please use Chrome, Firefox, or Edge when submitting and searching certificates. Sorry for the inconvenience!</span>
+        </div>
+
+        <img class="icon-square" src="../static/res/octicons/info.svg" th:src="@{/res/octicons/info.svg}" height="50px" alt="[About Icon]"/>
+        <h2 class="bold">ABOUT</h2>
+        <p><em><strong>All search fields are optional.</strong></em></p>
+        <p>If any of the <em>PERSONAL INFORMATION</em> fields are left blank, the query will return results matching any possible value for each field.</p>
+        <p>
+            If a date field in <em>CERIFICATE INFORMATION</em> is left blank, a date will automatically be filled.
+            If the <em>Expires After</em> field is left blank, it will automatically be filled with today's date.
+            If the <em>Expires Before</em> field is left blank, it will automatically be filled with the date exactly three years from today.
+        </p>
+    </div>
+
+    <div class="container">
+        <form action="#" th:action="@{/search-results}" th:object="${queryParameters}" method="post">
+
+            <img class="icon-square" src="../static/res/octicons/person.svg" th:src="@{/res/octicons/person.svg}" height="50px" alt="[Person Icon]"/>
+            <h2 class="bold">PERSONAL INFORMATION</h2>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" th:field="*{email}" placeholder="Any"/>
+            </div>
+
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" class="form-control" th:field="*{firstName}" placeholder="Any"/>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" class="form-control" th:field="*{lastName}" placeholder="Any"/>
+            </div>
+
+            <img class="icon-square" src="../static/res/octicons/file.svg" th:src="@{/res/octicons/file.svg}" height="50px" alt="[Certificate Icon]"/>
+            <h2 class="bold">CERTIFICATE INFORMATION</h2>
+
+            <!--If you want to have each date field with its own label, you can uncomment this block and comment the block below it-->
+            <!--<div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="endDateRangeLow">Expires After</label>
+                    <input type="date" id="endDateRangeLow" class="form-control" th:field="*{endDateRangeLow}"/>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="endDateRangeHigh">Expires Before</label>
+                    <input type="date" id="endDateRangeHigh" class="form-control" th:field="*{endDateRangeHigh}"/>
+                </div>
+            </div>-->
+
+            <div class="form-group">
+                <label for="endDateRangeLow">Expires between</label>
+                <div class="d-flex justify-content-around">
+                    <input type="date" id="endDateRangeLow" class="form-control col-md-5" th:field="*{endDateRangeLow}"/>
+                    <div class="my-auto col-md-2 text-center">
+                        <span>and</span>
+                    </div>
+                    <input type="date" id="endDateRangeHigh" class="form-control col-md-5" th:field="*{endDateRangeHigh}"/>
+                </div>
+                <small class="form-text text-muted">mm/dd/yyyy</small>
+            </div>
+
+            <div class="d-flex flex-row-reverse">
+                <button type="submit" class="btn btn-primary btn-lg float-right" onclick="enableSpinner(this);">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function enableSpinner(button) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border text-light mr-3 spinner-border-md" role="status"></span><span class="my-auto">Searching...</span>';
+            button.form.submit();
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>
+</html>

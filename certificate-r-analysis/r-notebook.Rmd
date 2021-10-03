@@ -1,0 +1,400 @@
+---
+title: "J. Tellew - DBMI 2019 Blockchain Certificate Database R Notebook"
+output: html_notebook
+---
+
+# About
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook created to analyze some results of my project in the UCSD DBMI 2019 summer internship program.
+
+# Plotting the Data
+I'll be making a plot (or several) over the next few sections using the data collected from experiments run on the AWS VM.
+
+### Importing the Data
+First, I'm going to import all of the `.csv` files in my data folder. Then, I'll check my list of files to make sure that everything was found properly.
+```{r}
+# Get all of the .csv files in the directory and read them
+data_filenames = list.files(path = "../results/test_add100_2019-08-13/", pattern="*.csv", full.names = T)
+myfiles = lapply(data_filenames, function(x) read.csv(file = x, stringsAsFactors = FALSE))
+
+# Make sure we read in the right files
+head(data_filenames)
+
+# Make sure the files were read in properly
+head(myfiles[[1]])
+```
+### Cleaning the Data
+The data is recorded in the format `hh:mm:ss.sss` which does not play nicely with R. I'll be splitting the `time` column into three different numeric columns instead (`hours`, `minutes`, and `seconds`) to make it easier to plot.
+```{r}
+library(tidyr)
+library(dplyr)
+
+# Create a copy of the `myfiles` list
+res = myfiles
+
+# For each data frame in the list...
+for(i in 1:length(res)) {
+  
+  # Split the time column into `hours`, `minutes`, and `seconds` columns
+  data_i = myfiles[[i]]
+  df_numeric_time = tidyr::separate(data = data_i, col = time, into = c("hours", "minutes", "seconds"), sep = ":" )
+  
+  # Convert the data from string to numeric
+  df_numeric_time$hours = as.numeric(df_numeric_time$hours)
+  df_numeric_time$minutes = as.numeric(df_numeric_time$minutes)
+  df_numeric_time$seconds = as.numeric(df_numeric_time$seconds)
+  
+  # Add a column with the time represented in hours
+  df_numeric_time$total_time_hours = (df_numeric_time$hours + (df_numeric_time$minutes / 60) + (df_numeric_time$seconds / 3600))
+  
+  # Add a column with the time represented in minutes
+  df_numeric_time$total_time_minutes = ((df_numeric_time$hours * 60) + df_numeric_time$minutes + (df_numeric_time$seconds / 60))
+  
+  # Update the corresponding data frame in the copy list
+  res[[i]] = df_numeric_time
+}
+```
+### Creating the Plot
+Now, I'll go ahead and plot the data. My plot will be a line graph with each of the trials (each represented by a `.csv` file) plotted separately on the same graph.
+```{r}
+library(ggplot2)
+# Create the plot
+combinedPlot = ggplot()
+
+# Add a line to the plot for each data frame
+for(i in 1:length(res)) {
+  combinedPlot = combinedPlot + geom_line(data = res[[i]], aes(x = certificates_added, y = total_time_minutes, group=1))
+}
+
+# Set x-axis to every fifth element
+combinedPlot = combinedPlot + scale_x_continuous(breaks = seq(0, 100, 5))
+
+# Add title and change axis labels
+combinedPlot = combinedPlot + ggtitle("Current System - Certificates Added vs Time (30 trials)") + xlab("Number of Certificates Added") + ylab("Total Time Taken (minutes)")
+
+# Remove the default plot background and grid
+combinedPlot_smallText = combinedPlot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+# Render the plot
+combinedPlot_smallText
+
+# Save the plot
+combinedPlot_largeText = combinedPlot + theme_bw(base_size = 24) + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+ggsave(plot = combinedPlot_largeText, filename = "combinedPlot.png", units = "in", width = 16, height = 9, dpi = 240)
+```
+### Adding a Mean Line
+Now, I'll add a line to represent the mean so we can reduce clutter on the graph. The mean will be calculated by adding the values at each certificate interval together across all of the data frames, then dividing by the number of trials.
+```{r}
+# Create a vector from the total_time_minutes column of the first data frame
+mean_total_time_minutes = res[[1]]$total_time_minutes
+
+# Add the total_time_minutes column from each data frame in res to the mean vector
+
+# For each data frame
+for(j in 2:length(res)) {
+  # For each row in the total_time_minutes column
+  for(k in 2:length(res[[j]]$total_time_minutes)) {
+    
+    # Add the value to the corresponding row in the mean vector
+    mean_total_time_minutes[[k]] = mean_total_time_minutes[[k]] + res[[j]]$total_time_minutes[[k]]
+  }
+}
+
+# Divide each value in the vector by the number of trials to get the mean
+for(m in 2:length(mean_total_time_minutes)) {
+  mean_total_time_minutes[[m]] = mean_total_time_minutes[[m]] / length(res)
+}
+
+# Add a line to the plot showing the mean
+combinedPlot_mean_smallText = combinedPlot + geom_line(data = res[[1]], aes(x = certificates_added, y = mean_total_time_minutes, group = 1), size = 2, color = "cyan")
+
+# Render the plot
+combinedPlot_mean_smallText
+
+# Save the plot with larger font size
+combinedPlot_mean_largeText = combinedPlot + theme_bw(base_size = 24) + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + geom_line(data = res[[1]], aes(x = certificates_added, y = mean_total_time_minutes, group = 1), size = 3, color = "cyan")
+
+ggsave(plot = combinedPlot_mean_largeText, filename = "combinedPlot_mean.png", units = "in", width = 16, height = 9, dpi = 240)
+```
+
+# Comparing Mean Lines
+Now I'm going to make a plot comparing the mean times between experiments running the old system with PDFs, the new system with PDFs, and the new system without PDFs.
+
+### Calculating the Mean for the Strawman Experiment With PDFs
+```{r}
+# *** LOAD THE DATA ***
+
+# Get all of the .csv files in the directory and read them
+data_filenames_strawman = list.files(path = "../results/test_add100_2019-08-05/", pattern="*.csv", full.names = T)
+myfiles_strawman = lapply(data_filenames_strawman, function(x) read.csv(file = x, stringsAsFactors = FALSE))
+
+# *** CLEAN THE DATA ***
+
+library(tidyr)
+library(dplyr)
+
+# Create a copy of the `myfiles` list
+res_strawman = myfiles_strawman
+
+# For each data frame in the list...
+for(i in 1:length(res_strawman)) {
+  
+  # Split the time column into `hours`, `minutes`, and `seconds` columns
+  data_i_strawman = myfiles_strawman[[i]]
+  df_numeric_time = tidyr::separate(data = data_i_strawman, col = time, into = c("hours", "minutes", "seconds"), sep = ":" )
+  
+  # Convert the data from string to numeric
+  df_numeric_time$hours = as.numeric(df_numeric_time$hours)
+  df_numeric_time$minutes = as.numeric(df_numeric_time$minutes)
+  df_numeric_time$seconds = as.numeric(df_numeric_time$seconds)
+  
+  # Add a column with the time represented in hours
+  df_numeric_time$total_time_hours = (df_numeric_time$hours + (df_numeric_time$minutes / 60) + (df_numeric_time$seconds / 3600))
+  
+  # Add a column with the time represented in minutes
+  df_numeric_time$total_time_minutes = ((df_numeric_time$hours * 60) + df_numeric_time$minutes + (df_numeric_time$seconds / 60))
+  
+  # Update the corresponding data frame in the copy list
+  res_strawman[[i]] = df_numeric_time
+}
+
+# *** CALCULATE THE MEAN ***
+
+# Create a vector from the total_time_minutes column of the first data frame
+mean_total_time_minutes_strawman = res_strawman[[1]]$total_time_minutes
+
+# Add the total_time_minutes column from each data frame in res to the mean vector
+
+# For each data frame
+for(j in 2:length(res_strawman)) {
+  # For each row in the total_time_minutes column
+  for(k in 2:length(res_strawman[[j]]$total_time_minutes)) {
+    
+    # Add the value to the corresponding row in the mean vector
+    mean_total_time_minutes_strawman[[k]] = mean_total_time_minutes_strawman[[k]] + res_strawman[[j]]$total_time_minutes[[k]]
+  }
+}
+
+# Divide each value in the vector by the number of trials to get the mean
+for(m in 2:length(mean_total_time_minutes_strawman)) {
+  mean_total_time_minutes_strawman[[m]] = mean_total_time_minutes_strawman[[m]] / length(res_strawman)
+}
+```
+
+### Calculating the Mean for the Strawman Experiment Without PDFs
+
+```{r}
+# *** LOAD THE DATA ***
+
+# Get all of the .csv files in the directory and read them
+data_filenames_strawman_no_pdf = list.files(path = "../results/test_add100_2019-08-12_no-pdf/", pattern="*.csv", full.names = T)
+myfiles_strawman_no_pdf = lapply(data_filenames_strawman_no_pdf, function(x) read.csv(file = x, stringsAsFactors = FALSE))
+
+# *** CLEAN THE DATA ***
+
+library(tidyr)
+library(dplyr)
+
+# Create a copy of the `myfiles` list
+res_no_pdf = myfiles_strawman_no_pdf
+
+# For each data frame in the list...
+for(i in 1:length(res_no_pdf)) {
+  
+  # Split the time column into `hours`, `minutes`, and `seconds` columns
+  data_i_strawman_no_pdf = myfiles_strawman_no_pdf[[i]]
+  df_numeric_time = tidyr::separate(data = data_i_strawman_no_pdf, col = time, into = c("hours", "minutes", "seconds"), sep = ":" )
+  
+  # Convert the data from string to numeric
+  df_numeric_time$hours = as.numeric(df_numeric_time$hours)
+  df_numeric_time$minutes = as.numeric(df_numeric_time$minutes)
+  df_numeric_time$seconds = as.numeric(df_numeric_time$seconds)
+  
+  # Add a column with the time represented in hours
+  df_numeric_time$total_time_hours = (df_numeric_time$hours + (df_numeric_time$minutes / 60) + (df_numeric_time$seconds / 3600))
+  
+  # Add a column with the time represented in minutes
+  df_numeric_time$total_time_minutes = ((df_numeric_time$hours * 60) + df_numeric_time$minutes + (df_numeric_time$seconds / 60))
+  
+  # Update the corresponding data frame in the copy list
+  res_no_pdf[[i]] = df_numeric_time
+}
+
+# *** CALCULATE THE MEAN ***
+
+# Create a vector from the total_time_minutes column of the first data frame
+mean_total_time_minutes_strawman_no_pdf = res_no_pdf[[1]]$total_time_minutes
+
+# Add the total_time_minutes column from each data frame in res to the mean vector
+
+# For each data frame
+for(j in 2:length(res_no_pdf)) {
+  # For each row in the total_time_minutes column
+  for(k in 2:length(res_no_pdf[[j]]$total_time_minutes)) {
+    
+    # Add the value to the corresponding row in the mean vector
+    mean_total_time_minutes_strawman_no_pdf[[k]] = mean_total_time_minutes_strawman_no_pdf[[k]] + res_no_pdf[[j]]$total_time_minutes[[k]]
+  }
+}
+
+# Divide each value in the vector by the number of trials to get the mean
+for(m in 2:length(mean_total_time_minutes_strawman_no_pdf)) {
+  mean_total_time_minutes_strawman_no_pdf[[m]] = mean_total_time_minutes_strawman_no_pdf[[m]] / length(res_no_pdf)
+}
+```
+
+### Calculating the Mean for the Current System Without PDFs
+
+```{r}
+# *** LOAD THE DATA ***
+
+# Get all of the .csv files in the directory and read them
+data_filenames_no_pdf = list.files(path = "../results/test_add100_2019-08-14_no-pdf/", pattern="*.csv", full.names = T)
+myfiles_no_pdf = lapply(data_filenames_no_pdf, function(x) read.csv(file = x, stringsAsFactors = FALSE))
+
+# *** CLEAN THE DATA ***
+
+library(tidyr)
+library(dplyr)
+
+# Create a copy of the `myfiles` list
+res_no_pdf = myfiles_no_pdf
+
+# For each data frame in the list...
+for(i in 1:length(res_no_pdf)) {
+  
+  # Split the time column into `hours`, `minutes`, and `seconds` columns
+  data_i_no_pdf = myfiles_no_pdf[[i]]
+  df_numeric_time = tidyr::separate(data = data_i_no_pdf, col = time, into = c("hours", "minutes", "seconds"), sep = ":" )
+  
+  # Convert the data from string to numeric
+  df_numeric_time$hours = as.numeric(df_numeric_time$hours)
+  df_numeric_time$minutes = as.numeric(df_numeric_time$minutes)
+  df_numeric_time$seconds = as.numeric(df_numeric_time$seconds)
+  
+  # Add a column with the time represented in hours
+  df_numeric_time$total_time_hours = (df_numeric_time$hours + (df_numeric_time$minutes / 60) + (df_numeric_time$seconds / 3600))
+  
+  # Add a column with the time represented in minutes
+  df_numeric_time$total_time_minutes = ((df_numeric_time$hours * 60) + df_numeric_time$minutes + (df_numeric_time$seconds / 60))
+  
+  # Update the corresponding data frame in the copy list
+  res_no_pdf[[i]] = df_numeric_time
+}
+
+# *** CALCULATE THE MEAN ***
+
+# Create a vector from the total_time_minutes column of the first data frame
+mean_total_time_minutes_no_pdf = res_no_pdf[[1]]$total_time_minutes
+
+# Add the total_time_minutes column from each data frame in res to the mean vector
+
+# For each data frame
+for(j in 2:length(res_no_pdf)) {
+  # For each row in the total_time_minutes column
+  for(k in 2:length(res_no_pdf[[j]]$total_time_minutes)) {
+    
+    # Add the value to the corresponding row in the mean vector
+    mean_total_time_minutes_no_pdf[[k]] = mean_total_time_minutes_no_pdf[[k]] + res_no_pdf[[j]]$total_time_minutes[[k]]
+  }
+}
+
+# Divide each value in the vector by the number of trials to get the mean
+for(m in 2:length(mean_total_time_minutes_no_pdf)) {
+  mean_total_time_minutes_no_pdf[[m]] = mean_total_time_minutes_no_pdf[[m]] / length(res_no_pdf)
+}
+```
+
+### Creating a Data Frame
+I'm going to create a data frame with the total certificates and the mean values from each of the three experiments so I can graph it with ggplot2
+```{r}
+df_means = data.frame(0:(length(mean_total_time_minutes) - 1), mean_total_time_minutes, mean_total_time_minutes_no_pdf, mean_total_time_minutes_strawman, mean_total_time_minutes_strawman_no_pdf)
+colnames(df_means) = c("certificates_added", "mean_total_time_minutes", "mean_total_time_minutes_no_pdf", "mean_total_time_minutes_strawman", "mean_total_time_minutes_strawman_no_pdf")
+head(df_means)
+tail(df_means)
+```
+
+### Plotting the Data Frame
+```{r}
+library(ggplot2)
+
+# Create the plot
+meanPlot = ggplot()
+
+# Set line thickness (currently optimized for the file saved version, not the notebook rendered version)
+line_thickness = 3
+
+# Add the mean line for the current system with PDFs
+meanPlot = meanPlot + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes, group = 1, color = "Current System Mean (With PDF)"), size = line_thickness)
+
+# Add the mean line for the current system without PDFs
+# meanPlot = meanPlot + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes_no_pdf, group = 1, color = "Current System Mean (No PDF)"), size = line_thickness)
+
+# Add the mean line for the strawman system with PDFs
+meanPlot = meanPlot + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes_strawman, group = 1, color = "Strawman Mean (With PDF)"), size = line_thickness)
+
+# Add the mean line for the strawman system without PDFs
+meanPlot = meanPlot + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes_strawman_no_pdf, group = 1, color = "Strawman Mean (No PDF)"), size = line_thickness)
+
+# Change line colors
+meanPlot = meanPlot + scale_color_manual(values = c("Current System Mean (With PDF)" = "cyan", "Strawman Mean (With PDF)" = "#009e74", "Strawman Mean (No PDF)" = "orange"))
+
+# Set x-axis to every fifth element
+meanPlot = meanPlot + scale_x_continuous(breaks = seq(0, 100, 5))
+
+# Add title and change axis labels
+meanPlot = meanPlot + ggtitle("Mean Comparison - Certificates Added vs Time") + xlab("Number of Certificates Added") + ylab("Total Time Taken (minutes)")
+
+# Remove the default plot background and grid
+meanPlot_smallText = meanPlot + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+# Render the plot
+meanPlot_smallText
+
+# Save the plot with larger font size
+meanPlot_largeText = meanPlot + theme_bw(base_size = 24) + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+ggsave(plot = meanPlot_largeText, filename = "meanPlot.png", units = "in", width = 16, height = 9, dpi = 240)
+```
+
+### Plotting the Data Frame (Zoomed In)
+Now I'll plot the same data but without the line `Strawman Mean (With PDF)` from the previous graph so we can see the other three lines better to compare them.
+```{r}
+library(ggplot2)
+
+# Create the plot
+meanPlot_zoomed = ggplot()
+
+# Set line thickness (currently optimized for the file saved version, not the notebook rendered version)
+line_thickness = 3
+
+# Add the mean line for the current system with PDFs
+meanPlot_zoomed = meanPlot_zoomed + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes, group = 1, color = "Current System Mean (With PDF)"), size = line_thickness)
+
+# Add the mean line for the current system without PDFs
+meanPlot_zoomed = meanPlot_zoomed + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes_no_pdf, group = 1, color = "Current System Mean (No PDF)"), size = line_thickness)
+
+# Add the mean line for the strawman system without PDFs
+meanPlot_zoomed = meanPlot_zoomed + geom_line(data = df_means, aes(x = certificates_added, y = mean_total_time_minutes_strawman_no_pdf, group = 1, color = "Strawman Mean (No PDF)"), size = line_thickness)
+
+# Change line colors
+meanPlot_zoomed = meanPlot_zoomed + scale_color_manual(values = c("Current System Mean (With PDF)" = "cyan", "Current System Mean (No PDF)" = "pink", "Strawman Mean (No PDF)" = "orange"))
+
+# Set x-axis to every fifth element
+meanPlot_zoomed = meanPlot_zoomed + scale_x_continuous(breaks = seq(0, 100, 5))
+
+# Add title and change axis labels
+meanPlot_zoomed = meanPlot_zoomed + ggtitle("Mean Comparison - Certificates Added vs Time") + xlab("Number of Certificates Added") + ylab("Total Time Taken (minutes)")
+
+# Remove the default plot background and grid
+meanPlot_zoomed_smallText = meanPlot_zoomed + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+# Render the plot
+meanPlot_zoomed_smallText
+
+# Save the plot
+meanPlot_zoomed_largeText = meanPlot_zoomed + theme_bw(base_size = 24) + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+ggsave(plot = meanPlot_zoomed_largeText, filename = "meanPlot_zoomed.png", units = "in", width = 16, height = 9, dpi = 240)
+```
+
+# Conclusion
+I plotted several trials on the same graph and then found the mean. Then, I plotted the mean for 4 different experiments and compared them with two different graphs. I also showed some basic ggplot2 customizations for your graphs. Hopefully this has been a helpful explaination of how I created the graphs for this project. Thanks for reading!

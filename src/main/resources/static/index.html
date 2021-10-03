@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC|Raleway:100,200,400,600,700" rel="stylesheet">
+
+    <title>DBMI Certificate Database</title>
+
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="/home">
+        <span>UCSD<strong>DBMI</strong></span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/submit">Submit</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/search">Search</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="jumbotron video-background">
+    <video class="jumbotron-video" preload muted autoplay loop>
+        <source src="../static/res/OKKKK.mp4" type="video/mp4">
+    </video>
+    <div class="container">
+        <h1 class="bold">UCSD DBMI Certificate Database</h1>
+        <p>Decentralized training certificate storage using the Ethereum blockchain</p>
+        <br/>
+        <p>
+            <a class="btn btn-primary btn-lg img-btn" href="/submit" role="button">
+                <img class="icon-square" src="../static/res/octicons/file-symlink-file-white.svg" height="75px" alt="[Submit Logo]"/>
+                <span>Submit a Certificate</span>
+            </a>
+            <a class="btn btn-secondary btn-lg img-btn" href="/search" role="button">
+                <img class="icon-rounded" src="../static/res/octicons/search-white.svg" height="75px" alt="[Search Logo]"/>
+                <span>Search Existing Certificates</span>
+            </a>
+        </p>
+    </div>
+</div>
+
+<div class="container border-bottom">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="../static/res/octicons/git-compare.svg" height="50px" alt="[Decentralized Icon]"/>
+            <h3 class="bold">Decentralized</h3>
+            <p>The database is built on decentralized blockchain technology, reducing the risk of a loss of service.</p>
+            <p>By distributing data throughout several nodes across a network, this database hopes to improve security and reliability.</p>
+        </div>
+        <div class="col-md-4">
+            <img src="../static/res/octicons/lock.svg" height="50px" alt="[Immutable Icon]"/>
+            <h3 class="bold">Immutable</h3>
+            <p>Once data is written to the database, it is not possible to change it.</p>
+            <p>This ensures that there is no tampering with information after it has been uploaded. Make sure you get it right the first time!</p>
+        </div>
+        <div class="col-md-4">
+            <img src="../static/res/octicons/eye.svg" height="50px" alt="[Transparent Icon]"/>
+            <h3 class="bold">Transparent</h3>
+            <p>Data on the blockchain is viewable by anyone participating on the network.</p>
+            <p>This means that anyone can see any transactions made, ensuring transparency.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container border-bottom">
+    <h1>Technologies Used</h1>
+    <div class="container">
+        <div class="row d-flex align-items-center">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                <img src="https://cdn.worldvectorlogo.com/logos/ethereum.svg" class="img-fluid" alt="[Ethereum Logo]">
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                <img src="https://logoeps.com/wp-content/uploads/2011/06/java-logo-vector.png" class="img-fluid" alt="[Java Logo]">
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                <img src="https://fuzati.com/wp-content/uploads/2016/12/Bootstrap-Logo.png" class="img-fluid" alt="[Bootstrap Logo]">
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                <img src="https://sdtimes.com/wp-content/uploads/2018/03/spring-boot-490x257.png" class="img-fluid" alt="[Spring Boot Logo]">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h1>About This Site</h1>
+    <p>This site is still a work in progress, and there are likely bugs and issues with it still. If you find any, please report them to dbmi_citi@ucsd.edu. Thank you!</p>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+</body>
+</html>

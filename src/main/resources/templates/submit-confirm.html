@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC|Raleway:100,200,400,600,700" rel="stylesheet">
+
+    <title>Confirm Your Certificate</title>
+
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" href="../static/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="/home">
+            <span>UCSD<strong>DBMI</strong></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/submit">Submit</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/search">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="jumbotron video-background">
+        <video class="jumbotron-video" preload muted autoplay loop>
+            <source th:src="@{/res/OKKKK.mp4}" src="../static/res/OKKKK.mp4" type="video/mp4">
+        </video>
+        <div class="container">
+            <h1 class="bold">CONFIRM</h1>
+            <p>Confirm your certificate information</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-warning">
+            <h4>Your certificate information <strong>cannot be modified</strong> after it is submitted.</h4>
+            <span>Please confirm that all of your information is correct before proceeding.</span>
+        </div>
+
+        <img class="icon-square" src="../static/res/octicons/person.svg" th:src="@{/res/octicons/person.svg}" height="50px" alt="[Person Icon]"/>
+        <h2 class="bold">PERSONAL INFORMATION</h2>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">Email:</span>
+            <span th:text="${certificateSubmission.email}" />
+        </div>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">First Name:</span>
+            <span th:text="${certificateSubmission.firstName}" />
+        </div>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">Last Name:</span>
+            <span th:text="${certificateSubmission.lastName}" />
+        </div>
+
+        <img class="icon-square" src="../static/res/octicons/file.svg" th:src="@{/res/octicons/file.svg}" height="50px" alt="[Certificate Icon]"/>
+        <h2 class="bold">CERTIFICATE INFORMATION</h2>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">Certificate Type:</span>
+            <span th:text="${certificateSubmission.certificateType}" />
+        </div>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">Record ID:</span>
+            <span th:text="${certificateSubmission.recordID}" />
+        </div>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">Course Name:</span>
+            <span th:text="${certificateSubmission.courseName}" />
+        </div>
+
+        <div class="confirm-field">
+            <span class="confirm-field-name">Certificate Expiry Date:</span>
+            <span th:text="${certificateSubmission.getEndDateFormatted()}" />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a class="btn btn-danger btn-lg" href="/submit" role="button">Change my information</a>
+            <form th:action="@{/submit-attempt}" method="post">
+                <button type="submit" class="btn btn-primary btn-lg align-middle" onclick="enableSpinner(this);">Submit</button>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        function enableSpinner(button) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border text-light mr-3 spinner-border-md" role="status"></span><span class="my-auto">Uploading certificate...</span>';
+            button.form.submit();
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>
+</html>
