@@ -17,7 +17,7 @@ This repo contains all code for our project, CertificateChain. Source code as we
 
 # Contact
 
-Thank you for using our software. If you have any questions or suggestions, please kindly contact Jeff Tellew (jefftellew at gmail dot com), UCSD Health Department of Biomedical Informatics, University of California San Diego, La Jolla, USA.
+Thank you for using our software. If you have any questions or suggestions, please kindly contact Jeff Tellew (jefftellew at gmail dot com), University of California Santa Barbara, Santa Barbara, CA, USA.
 
 # Installation
 This section will go over installing all of the necessary components to run the web app.
